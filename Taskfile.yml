@@ -1,0 +1,16 @@
+version: 3
+
+tasks:
+  build:
+    desc: Builds the project by transpiling the codebase into JavaScript.
+    aliases:
+      - bd
+    cmds:
+      - GOOS=linux GOARCH=amd64 go build -o bin/blight-amd64-linux
+      - GOOS=darwin GOARCH=arm64 go build -o bin/blight-amd64-darwin
+      # - GOOS=windows GOARCH=amd64 go build -o bin/blight-amd64-windows.exe
+      # - GOOS=linux GOARCH=arm64 go build -o bin/blight-arm64-linux
+      # - GOOS=darwin GOARCH=arm64 go build -o bin/blight-arm64-darwin
+      # - GOOS=windows GOARCH=arm64 go build -o bin/blight-arm64-windows.exe
+
+
