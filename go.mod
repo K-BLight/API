@@ -1,4 +1,4 @@
-module github.com/K-BLight/api
+module github.com/K-BLight/API
 
 go 1.20
 
