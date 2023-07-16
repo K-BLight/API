@@ -1,0 +1,31 @@
+name: Go Releaser
+
+on:
+  push:
+    tags:
+      - v*
+
+jobs:
+  build:
+    name: Build & Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # This is needed if you use fields like TagBody, TagSubject or TagContents in templates.
+      - name: Fetch tags
+        run: git fetch --force --tags
+
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: stable
+
+      - uses: goreleaser/goreleaser-action@v4
+        with:
+          distribution: goreleaser
+          version: latest
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
