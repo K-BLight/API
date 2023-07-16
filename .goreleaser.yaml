@@ -3,6 +3,8 @@ before:
     # This hook will run `go mod tidy` before releasing.
     - go mod tidy
 
+project_name: kblight-api
+
 archives:
   - format: tar.gz
 
