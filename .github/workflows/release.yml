@@ -36,7 +36,7 @@ jobs:
             The latest **{{ EVENT_PAYLOAD.repository.full_name }}** build has completed. The following is for testing purposes:
             EVENT_PAYLOAD.repository.html_url: {{ EVENT_PAYLOAD.repository.html_url }}
             GITHUB_ACTION: {{ GITHUB_ACTION }}
-            Pull_Request.ID: {{ EVENT_PAYLOAD.pull_request.id }}
+
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
 
