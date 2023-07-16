@@ -12,6 +12,8 @@ jobs:
   build:
     name: Simple Build
     runs-on: ubuntu-latest
+    env:
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -35,8 +37,9 @@ jobs:
         with:
           # args: 'The latest **{{ EVENT_PAYLOAD.repository.full_name }}** build has completed. {{EVENT_PAYLOAD.repository.html_url}}'
           args: |
-            The latest build for **{{ EVENT_PAYLOAD.repository.full_name }}** has completed. For more information,
-            please [click here.](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            The [latest build](${{ env.RUN_URL }}) for **{{ EVENT_PAYLOAD.repository.full_name }}** has completed.
+            Conclusion: **${{ job.status }}**
+            Conclusion: **${{ github.event.workflow_run.conclusion }}**
 
 
   release:
