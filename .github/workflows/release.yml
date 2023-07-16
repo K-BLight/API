@@ -29,7 +29,8 @@ jobs:
       - name: Discord Notification
         uses: 'Ilshidur/action-discord@0.3.2'
         with:
-          args: 'The project {{ EVENT_PAYLOAD.repository.full_name }} has been deployed.'
+          args: 'The latest **{{ EVENT_PAYLOAD.repository.full_name }}** build has completed.'
+          # args: 'The project **{{ EVENT_PAYLOAD.repository.full_name }}** has been deployed.'
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
 
@@ -63,6 +64,6 @@ jobs:
       - name: Discord Notification
         uses: 'Ilshidur/action-discord@0.3.2'
         with:
-          args: 'The project {{ EVENT_PAYLOAD.repository.full_name }} has been deployed.'
+          args: 'The project **{{ EVENT_PAYLOAD.repository.full_name }}** has been deployed.'
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
