@@ -8,12 +8,13 @@ on:
       - main
       - develop
 
+env:
+  RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
 jobs:
   build:
     name: Simple Build
     runs-on: ubuntu-latest
-    env:
-      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -66,10 +67,10 @@ jobs:
 
       - name: Discord Notification
         uses: 'Ilshidur/action-discord@0.3.2'
-        with:
-          args: 'The project **{{ EVENT_PAYLOAD.repository.full_name }}** has been deployed.'
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        with:
+          args: "The [latest build](${{ env.RUN_URL }}) for **${{ github.repository }}** has completed with the following status: **${{ job.status }}**"
 
 
 
