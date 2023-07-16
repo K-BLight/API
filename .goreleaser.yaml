@@ -1,22 +1,23 @@
-
-universal_binaries:
-  - replace: false
+before:
+  hooks:
+    # This hook will run `go mod tidy` before releasing.
+    - go mod tidy
 
 archives:
   - format: tar.gz
+
+    # A list of additional files to include in the archive.
     files:
       - LICENSE*
       - README*
 
-sboms:
-  - artifacts: archive
+    # Use zip for Windows archives.
+    format_overrides:
+      - goos: windows
+        format: zip
 
-report_sizes: true
-
-announce:
-  # Requires the DISCORD_WEBHOOK_ID & DISCORD_WEBHOOK_TOKEN environment variables to be set.
-  discord:
-    enabled: true
+universal_binaries:
+  - replace: false
 
 kos:
   - main: ./main.go
@@ -26,100 +27,26 @@ kos:
       - latest
       - '{{.Tag}}'
 
-# # .goreleaser.yaml
-# kos:
-# -
+sboms:
+  - artifacts: archive
 
-#   # Main path to build.
-#   #
-#   # Default: build.main
-#   main: ./cmd/...
+report_sizes: true
 
-#   # Working directory used to build.
-#   #
-#   # Default: build.dir
-#   working_dir: .
+checksum:
+  name_template: "{{ .ProjectName }}_{{ .Version }}_checksums.txt"
 
-#   # Base image to publish to use.
-#   #
-#   # Default: 'cgr.dev/chainguard/static'
-#   base_image: alpine
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
 
-#   # Labels for the image.
-#   #
-#   # Since: v1.17
-#   labels:
-#     foo: bar
+changelog:
+  use: git
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
 
-#   # Repository to push to.
-#   #
-#   # Default: $KO_DOCKER_REPO
-#   repository: ghcr.io/foo/bar
-
-#   # Platforms to build and publish.
-#   #
-#   # Default: 'linux/amd64'
-#   platforms:
-#   - linux/amd64
-#   - linux/arm64
-
-#   # Tag to build and push.
-#   # Empty tags are ignored.
-#   #
-#   # Default: 'latest'
-#   # Templates: allowed
-#   tags:
-#   - latest
-#   - '{{.Tag}}'
-#   - '{{if not .Prerelease}}stable{{end}}'
-
-#   # Creation time given to the image
-#   # in seconds since the Unix epoch as a string.
-#   #
-#   # Since: v1.17
-#   # Templates: allowed
-#   creation_time: '{{.CommitTimestamp}}'
-
-#   # Creation time given to the files in the kodata directory
-#   # in seconds since the Unix epoch as a string.
-#   #
-#   # Since: v1.17
-#   # Templates: allowed
-#   ko_data_creation_time: '{{.CommitTimestamp}}'
-
-#   # SBOM format to use.
-#   #
-#   # Default: 'spdx'
-#   # Valid options are: spdx, cyclonedx, go.version-m and none.
-#   sbom: none
-
-#   # Ldflags to use on build.
-#   #
-#   # Default: build.ldflags
-#   ldflags:
-#   - foo
-#   - bar
-
-#   # Flags to use on build.
-#   #
-#   # Default: build.flags
-#   flags:
-#   - foo
-#   - bar
-
-#   # Env to use on build.
-#   #
-#   # Default: build.env
-#   env:
-#   - FOO=bar
-#   - SOMETHING=value
-
-
-#   # Bare uses a tag on the $KO_DOCKER_REPO without anything additional.
-#   bare: true
-
-#   # Whether to preserve the full import path after the repository name.
-#   preserve_import_paths: true
-
-#   # Whether to use the base path without the MD5 hash after the repository name.
-#   base_import_paths: true
+announce:
+  # Requires the DISCORD_WEBHOOK_ID & DISCORD_WEBHOOK_TOKEN environment variables to be set.
+  discord:
+    enabled: true
