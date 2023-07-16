@@ -35,7 +35,7 @@ jobs:
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         with:
-          args: "The [latest build](${{ env.RUN_URL }}) for **{{ EVENT_PAYLOAD.repository.full_name }}** has completed with the following status: **${{ job.status }}**"
+          args: "The [latest build](${{ env.RUN_URL }}) for **${{ github.repository }}** has completed with the following status: **${{ job.status }}**"
 
   release:
     name: Build & Release
