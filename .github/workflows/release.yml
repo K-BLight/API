@@ -30,22 +30,15 @@ jobs:
 
       - name: Discord Notification
         uses: 'Ilshidur/action-discord@0.3.2'
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         with:
           # args: 'The latest **{{ EVENT_PAYLOAD.repository.full_name }}** build has completed. {{EVENT_PAYLOAD.repository.html_url}}'
           args: |
-            The latest **{{ EVENT_PAYLOAD.repository.full_name }}** build has completed. The following is for testing purposes:
-            EVENT_PAYLOAD.repository.html_url: {{ EVENT_PAYLOAD.repository.html_url }}
-            GITHUB_ACTION: {{ GITHUB_ACTION }}
+            The latest build for **{{ EVENT_PAYLOAD.repository.full_name }}** has completed. For more information,
+            please [click here.](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
 
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
 
-      - name: Use Appleboy's Discord Action
-        uses: appleboy/discord-action@master
-        with:
-          webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
-          webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
-          message: The ${{ github.event_name }} event triggered first step.
   release:
     name: Build & Release
     runs-on: ubuntu-latest
@@ -79,3 +72,6 @@ jobs:
           args: 'The project **{{ EVENT_PAYLOAD.repository.full_name }}** has been deployed.'
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+
+
+
