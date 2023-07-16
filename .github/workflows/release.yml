@@ -2,13 +2,35 @@ name: Go Releaser
 
 on:
   push:
-    tags:
-      - v*
+    branches:
+      - main
+      - develop
 
 jobs:
   build:
+    name: Build Codebase
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # This is needed if you use fields like TagBody, TagSubject or TagContents in templates.
+      - name: Fetch tags
+        run: git fetch --force --tags
+
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: stable
+
+      - name: Basic Build
+        run: go build
+
+  release:
     name: Build & Release
     runs-on: ubuntu-latest
+    # An if statement that makes sure this job only runs when a tag is pushed
+    if: startsWith(github.ref, 'refs/tags/v')
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
