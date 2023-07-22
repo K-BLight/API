@@ -1,0 +1,61 @@
+{
+  "name": "@k-blight/api",
+  "displayName": "K-BLight API",
+  "version": "0.0.0",
+  "description": "The API component of Project K-BLight.",
+  "main": "./dist/index.js",
+  "exports": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "type": "module",
+  "license": "MIT",
+  "homepage": "https://github.com/K-BLight/API",
+  "scripts": {
+    "start": "node dist/index.js",
+    "prestart": "npm run build",
+    "build": "tsc",
+    "pretty": "prettier --write .",
+    "lint": "prettier -c .",
+    "test": "echo 'There are currently no tests available.'",
+    "scan": "snyk monitor && snyk code test"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "keywords": [
+    "API"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com/K-BLight/API.git"
+  },
+  "author": {
+    "name": "4lch4",
+    "email": "hey@4lch4.email",
+    "url": "https://4lch4.com"
+  },
+  "bugs": {
+    "email": "bugs@4lch4.email",
+    "url": "https://github.com/K-BLight/API/issues"
+  },
+  "dependencies": {
+    "@4lch4/koa-oto": "^2.0.0",
+    "@4lch4/koa-router-printer": "^1.4.3",
+    "@4lch4/logger": "^1.11.0",
+    "@koa/router": "^12.0.0",
+    "koa": "^2.14.2",
+    "koa-body": "^6.0.1",
+    "koa-helmet": "^7.0.2",
+    "koa-logger": "^3.2.1"
+  },
+  "devDependencies": {
+    "@types/koa": "^2.13.6",
+    "@types/koa-logger": "^3.1.2",
+    "@types/koa__router": "^12.0.0",
+    "@types/node": "^20.4.4",
+    "prettier": "^3.0.0",
+    "typescript": "^5.1.6"
+  }
+}

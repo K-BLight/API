@@ -1,0 +1,46 @@
+version: 3
+
+env:
+  DOCKER_IMAGE_NAME: k-blight-api
+  DOCKER_IMAGE_TAG: latest
+  DOCKER_REGISTRY: 4lch4
+  DOCKER_CONTAINER_NAME: k-blight-api
+
+dotenv:
+  - .env
+
+tasks:
+  pretty:
+    desc: Uses the Prettier CLI tool to format the codebase.
+    aliases: [p, format, fmt]
+    cmd: prettier --write .
+
+  build:
+    desc: Builds the project into a Docker image.
+    aliases: [bd]
+    cmds:
+      - docker build --platform linux/arm64 -t {{ .DOCKER_REGISTRY }}/{{ .DOCKER_IMAGE_NAME }}:{{ .DOCKER_IMAGE_TAG }} .
+      # - docker build --platform linux/amd64 -t {{ .DOCKER_REGISTRY }}/{{ .DOCKER_IMAGE_NAME }}:{{ .DOCKER_IMAGE_TAG }} .
+
+  run:
+    desc: Runs the project in a Docker container.
+    aliases: [r]
+    cmd: |
+      docker run --env-file .env --name {{ .DOCKER_CONTAINER_NAME }} \
+          -d -p {{ .API_PORT }}:{{ .API_PORT }} \
+          {{ .DOCKER_IMAGE_NAME }}:{{ .DOCKER_IMAGE_TAG }}
+
+  logs:
+    desc: Shows the logs of the running container.
+    aliases:
+      - l
+    cmds:
+      - docker logs -f {{ .DOCKER_CONTAINER_NAME }}
+
+  refresh:
+    desc: Restarts the docker container.
+    cmds:
+      - task build
+      - docker stop tp-api
+      - docker rm tp-api
+      - task run
