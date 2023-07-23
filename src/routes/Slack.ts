@@ -8,12 +8,13 @@ export class SlackEndpoint extends BaseEndpoint {
   async handleSlackEvent(ctx: RouterContext) {
     const event: ISlackEvent = ctx.request.body
 
+    logger.info(`[SlackEndpoint#handleSlackEvent]: event: ${JSON.stringify(event, null, 2)}`)
+
     if (event.type === 'url_verification') {
       ctx.status = 200
       ctx.body = event.challenge
+      return ctx
     }
-
-    logger.info(`[SlackEndpoint#handleSlackEvent]: event: ${JSON.stringify(event, null, 2)}`)
 
     return Successful.ok(ctx)
   }
