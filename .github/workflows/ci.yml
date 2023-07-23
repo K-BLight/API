@@ -9,12 +9,15 @@ on:
       - 'v*'
 
 env:
+  RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
   DOCKER_IMAGE: 4lch4/k-blight-api
 
 jobs:
   build-and-push:
     name: Build & Push Docker Image
     runs-on: ubuntu-latest
+    outputs:
+      status: ${{ job.status }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -44,3 +47,16 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           push: true
+
+  notify:
+    name: Send Status Notification
+    needs: build-and-push
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Discord Notification
+        uses: 'Ilshidur/action-discord@0.3.2'
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        with:
+          args: "The [latest build](${{ env.RUN_URL }}) for **${{ github.repository }}** has completed with the following status: **${{ needs.build-and-push.outputs.status }}**"
