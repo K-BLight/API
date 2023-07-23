@@ -1,14 +1,16 @@
 import { Successful } from '@4lch4/koa-oto'
 import { logger } from '@4lch4/logger'
 import { RouterContext } from '@koa/router'
-import { StatusChangedEvent } from '../interfaces/index.js'
+import { ISlackEvent } from '../interfaces/index.js'
 import { BaseEndpoint } from '../lib/index.js'
 
 export class SlackEndpoint extends BaseEndpoint {
   async handleSlackEvent(ctx: RouterContext) {
-    const event: StatusChangedEvent = ctx.request.body
+    const event: ISlackEvent = ctx.request.body
 
-    logger.info(`[SlackEndpoint#handleSlackEvent]: event: ${JSON.stringify(event)}`)
+    if (event.type === 'url_verification') return Successful.ok(ctx, event?.challenge)
+
+    logger.info(`[SlackEndpoint#handleSlackEvent]: event: ${JSON.stringify(event, null, 2)}`)
 
     return Successful.ok(ctx)
   }

@@ -28,7 +28,7 @@ tasks:
     cmd: |
       docker run --env-file .env --name {{ .DOCKER_CONTAINER_NAME }} \
           -d -p {{ .API_PORT }}:{{ .API_PORT }} \
-          {{ .DOCKER_IMAGE_NAME }}:{{ .DOCKER_IMAGE_TAG }}
+          {{ .DOCKER_REGISTRY }}/{{ .DOCKER_IMAGE_NAME }}:{{ .DOCKER_IMAGE_TAG }}
 
   logs:
     desc: Shows the logs of the running container.

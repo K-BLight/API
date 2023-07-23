@@ -1,13 +1,26 @@
-export interface StatusChangedEvent {
-  token: string
-  team_id: string
-  api_app_id: string
-  event: Event
+export interface ISlackEvent {
   type: string
-  event_id: string
-  event_time: number
-  authorizations: Authorization[]
-  is_ext_shared_channel: boolean
+  challenge?: string
+  token?: string
+  team_id?: string
+  api_app_id?: string
+  event?: Event
+  event_id?: string
+  event_time?: number
+  authorizations?: Authorization[]
+  is_ext_shared_channel?: boolean
+}
+
+export interface StatusChangedEvent {
+  token?: string
+  team_id?: string
+  api_app_id?: string
+  event?: Event
+  type?: string
+  event_id?: string
+  event_time?: number
+  authorizations?: Authorization[]
+  is_ext_shared_channel?: boolean
 }
 
 export interface Authorization {
