@@ -58,5 +58,6 @@ jobs:
         uses: 'Ilshidur/action-discord@0.3.2'
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          DISCORD_USERNAME: '${{ github.actor }} (GitHub Actions)'
         with:
           args: "The [latest build](${{ env.RUN_URL }}) for **${{ github.repository }}** has completed with the following status: **${{ needs.build-and-push.outputs.status }}**"
