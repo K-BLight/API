@@ -54,11 +54,17 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     steps:
+      - name: Prepare Commit Message
+        id: prep-commit-msg
+        run: |
+          sudo apt-get install -y jq
+          echo "COMMIT_MESSAGE=$(echo ${{ github.event.head_commit.message }} | jq -Rs .)" >> $GITHUB_ENV
+
       - name: Discord Notification
         uses: 'Ilshidur/action-discord@0.3.2'
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
           DISCORD_USERNAME: '${{ github.actor }} (GitHub Actions)'
-          DISCORD_EMBEDS: '[ { "title": "${{ github.repository }}", "description": "**Commit Message**: ${{ github.event.head_commit.message }}", "fields": [ { "name": "Status", "value": "`${{ needs.build-and-push.outputs.status }}`", "short": true, "inline": true }, { "name": "Event", "value": "`${{ github.event_name }}`", "short": true, "inline": true }, { "name": "Branch", "value": "`${{ github.ref }}`", "short": true, "inline": true }, { "name": "Commit", "value": "[${{ github.sha }}](${{ env.RUN_URL }})", "short": true, "inline": true }, { "name": "Workflow", "value": "[${{ github.workflow }}](${{ env.RUN_URL }})", "short": true, "inline": true } ] } ] '
+          DISCORD_EMBEDS: '[ { "title": "${{ github.repository }}", "description": "**Commit Message**: $COMMIT_MESSAGE", "fields": [ { "name": "Status", "value": "`${{ needs.build-and-push.outputs.status }}`", "short": true, "inline": true }, { "name": "Event", "value": "`${{ github.event_name }}`", "short": true, "inline": true }, { "name": "Branch", "value": "`${{ github.ref }}`", "short": true, "inline": true }, { "name": "Commit", "value": "[${{ github.sha }}](${{ env.RUN_URL }})", "short": true, "inline": true }, { "name": "Workflow", "value": "[${{ github.workflow }}](${{ env.RUN_URL }})", "short": true, "inline": true } ] } ] '
         with:
           args: "The [latest build](${{ env.RUN_URL }}) for **${{ github.repository }}** has completed."
