@@ -10,10 +10,19 @@ export class SlackEndpoint extends BaseEndpoint {
 
     logger.info(`[SlackEndpoint#handleSlackEvent]: event: ${JSON.stringify(event, null, 2)}`)
 
-    if (event.type === 'url_verification') {
-      ctx.status = 200
-      ctx.body = event.challenge
-      return ctx
+    switch (event.type) {
+      case 'url_verification': {
+        ctx.status = 200
+        ctx.body = event.challenge
+
+        return ctx
+      }
+
+      case 'event_callback': {
+        if (event.event?.type === 'user_status_changed') {
+          logger.info(`[SlackEndpoint#handleSlackEvent|user_status_changed]: event: ${JSON.stringify(event, null, 2)}`)
+        }
+      }
     }
 
     return Successful.ok(ctx)
