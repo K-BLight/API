@@ -59,6 +59,5 @@ jobs:
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
           DISCORD_USERNAME: '${{ github.actor }} (GitHub Actions)'
-          DISCORD_EMBEDS: '{ "embeds": [{ "title": "Status", "description": "${{ needs.build-and-push.outputs.status }}" }] }'
         with:
           args: "The [latest build](${{ env.RUN_URL }}) for **${{ github.repository }}** has completed with the following status: **${{ needs.build-and-push.outputs.status }}**"
