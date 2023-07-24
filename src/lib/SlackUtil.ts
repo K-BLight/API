@@ -1,4 +1,4 @@
-import { logger } from '@4lch4/logger'
+import { logger } from './Logger.js'
 import { RouterContext } from '@koa/router'
 import { EnvelopedEvent, SlackEvent, UserStatusChangedEvent } from '@slack/bolt'
 import { Kafka } from '@upstash/kafka'

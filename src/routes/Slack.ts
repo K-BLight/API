@@ -1,8 +1,7 @@
 import { Successful } from '@4lch4/koa-oto'
 import { RouterContext } from '@koa/router'
 import { EnvelopedEvent, SlackEvent } from '@slack/bolt'
-import { BaseEndpoint, SlackUtil } from '../lib/index.js'
-import { logger } from '@4lch4/logger'
+import { BaseEndpoint, SlackUtil, logger } from '../lib/index.js'
 
 export class SlackEndpoint extends BaseEndpoint {
   async handleSlackEvent(ctx: RouterContext) {

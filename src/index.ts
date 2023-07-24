@@ -2,9 +2,8 @@ import { printRoutes } from '@4lch4/koa-router-printer'
 import Koa from 'koa'
 import { koaBody } from 'koa-body'
 import Helmet from 'koa-helmet'
-import { getAppConfig } from './lib/index.js'
+import { getAppConfig, logger } from './lib/index.js'
 import { getRoutes } from './routes/index.js'
-import { logger } from '@4lch4/logger'
 
 const { apiName, apiPort, apiPrefix, apiVersion } = getAppConfig()
 
@@ -21,5 +20,5 @@ for (const route of await getRoutes(apiPrefix)) {
 printRoutes(app)
 
 app.listen(apiPort, () => {
-  logger.success(`${apiName}-v${apiVersion} has come online, listening on port ${apiPort}!`)
+  logger.info(`${apiName}-v${apiVersion} has come online, listening on port ${apiPort}!`)
 })
