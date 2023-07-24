@@ -39,6 +39,7 @@ jobs:
         run: |
           sudo apt-get install -y jq
           echo "COMMIT_MESSAGE=$(echo ${{ github.event.head_commit.message }} | jq -Rs .)" >> $GITHUB_ENV
+          echo "$COMMIT_MESSAGE"
 
       - name: Discord Notification
         uses: 'Ilshidur/action-discord@0.3.2'

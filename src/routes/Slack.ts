@@ -10,6 +10,7 @@ export class SlackEndpoint extends BaseEndpoint {
       url: process.env.UPSTASH_KAFKA_URL || '',
       username: process.env.UPSTASH_KAFKA_USERNAME || '',
       password: process.env.UPSTASH_KAFKA_PASSWORD || '',
+      topic: process.env.UPSTASH_KAFKA_TOPIC || '',
     })
 
     logger.info(`[SlackEndpoint#handleSlackEvent]: event: ${JSON.stringify(envelope, null, 2)}`)
