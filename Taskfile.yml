@@ -1,46 +1,69 @@
 version: 3
 
-env:
-  DOCKER_IMAGE_NAME: k-blight-api
-  DOCKER_IMAGE_TAG: latest
-  DOCKER_REGISTRY: 4lch4
-  DOCKER_CONTAINER_NAME: k-blight-api
-
-dotenv:
-  - .env
+# Source .env file(s)
+dotenv: [.env]
 
 tasks:
+  env:
+    desc: Downloads the nonprod secrets from Doppler and saves them to an .env file.
+    aliases: [e]
+    cmd: doppler secrets download --no-file --format docker --project k-blight --config nonprod_api > .env
+
+  env:prod:
+    desc: Downloads the production secrets from Doppler and saves them to an .env.production file.
+    aliases: [ep]
+    cmd: doppler secrets download --no-file --format docker --project k-blight --config prod_api > .env.production
+
   pretty:
     desc: Uses the Prettier CLI tool to format the codebase.
     aliases: [p, format, fmt]
     cmd: prettier --write .
 
   build:
-    desc: Builds the project into a Docker image.
-    aliases: [bd]
-    cmds:
-      - docker build --platform linux/arm64 -t {{ .DOCKER_REGISTRY }}/{{ .DOCKER_IMAGE_NAME }}:{{ .DOCKER_IMAGE_TAG }} .
-      # - docker build --platform linux/amd64 -t {{ .DOCKER_REGISTRY }}/{{ .DOCKER_IMAGE_NAME }}:{{ .DOCKER_IMAGE_TAG }} .
+    desc: Builds the project into a Docker image for use on the local architecture.
+    aliases: [b]
+    cmd: docker build -t $DOCKER_IMAGE .
 
-  run:
-    desc: Runs the project in a Docker container.
-    aliases: [r]
-    cmd: |
-      docker run --env-file .env --name {{ .DOCKER_CONTAINER_NAME }} \
-          -d -p {{ .API_PORT }}:{{ .API_PORT }} \
-          {{ .DOCKER_REGISTRY }}/{{ .DOCKER_IMAGE_NAME }}:{{ .DOCKER_IMAGE_TAG }}
+  clean:
+    desc: Deletes the built Docker container.
+    aliases: [c]
+    cmd: docker rm $DOCKER_CONTAINER_NAME
+
+  start:
+    desc: Starts the project locally in a Docker container.
+    aliases: [s, up]
+    cmd: docker run -d -p $DOCKER_CONTAINER_PORT:$API_PORT --env-file=.env --name $DOCKER_CONTAINER_NAME $DOCKER_IMAGE
+
+  stop:
+    desc: Stops the locally running Docker container.
+    aliases: [st, down]
+    cmd: docker stop $DOCKER_CONTAINER_NAME
 
   logs:
-    desc: Shows the logs of the running container.
-    aliases:
-      - l
-    cmds:
-      - docker logs -f {{ .DOCKER_CONTAINER_NAME }}
+    desc: Follows the logs of the locally running Docker container.
+    aliases: [l]
+    cmd: docker logs -f $DOCKER_CONTAINER_NAME
 
-  refresh:
-    desc: Restarts the docker container.
+  restart:
+    desc: Rebuilds, stops, deletes, and starts the locally running Docker container.
+    aliases: [r, reboot]
     cmds:
       - task build
-      - docker stop {{ .DOCKER_CONTAINER_NAME }}
-      - docker rm {{ .DOCKER_CONTAINER_NAME }}
-      - task run
+      - task stop
+      - task clean
+      - task start
+
+  release:
+    desc: |
+      Builds the project into a Docker image for use on amd64 & arm64 architectures, tags it with
+      latest, and pushes it to Docker Hub.
+    aliases: [rls, rel]
+    cmd: docker buildx build --platform linux/amd64,linux/arm64 -t ${DOCKER_IMAGE} --push .
+
+  push:
+    desc: Push any git changes and tags to the remote repository.
+    aliases: [gp]
+    cmds:
+      - git push
+      - git push --tags
+
