@@ -1,11 +1,12 @@
+import { logger } from '@4lch4/backpack'
 import { RouterContext } from '@koa/router'
-import { IUpstashKafkaConfig, SlackEventEnvelope } from '../interfaces/index.js'
-import { KafkaUtil, logger } from './index.js'
+import { SlackEventEnvelope, UpstashConfig } from '../types/index'
+import { KafkaUtil } from './index'
 
 export class SlackUtil {
   private kUtil: KafkaUtil
 
-  public constructor(config: IUpstashKafkaConfig) {
+  public constructor(config: UpstashConfig) {
     this.kUtil = new KafkaUtil(config)
   }
 
@@ -38,8 +39,8 @@ export class SlackUtil {
           `[SlackEndpoint#handleSlackEvent|user_status_changed]: event: ${JSON.stringify(
             envelope,
             null,
-            2
-          )}`
+            2,
+          )}`,
         )
 
         const res = await this.kUtil.sendStatus(envelope)

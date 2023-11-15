@@ -1,12 +1,12 @@
+import { logger } from '@4lch4/backpack'
 import { Kafka } from '@upstash/kafka'
-import { IUpstashKafkaConfig, SlackEventEnvelope, Status } from '../interfaces/index.js'
-import { logger } from './Logger.js'
+import { SlackEventEnvelope, Status, UpstashConfig } from '../types/index'
 
 export class KafkaUtil {
   private topic: string
   private kafka: Kafka
 
-  public constructor({ url, username, password, topic }: IUpstashKafkaConfig) {
+  public constructor({ url, username, password, topic }: UpstashConfig) {
     this.kafka = new Kafka({ url, username, password })
     this.topic = topic
 

@@ -1,39 +1,69 @@
-import { Successful } from '@4lch4/koa-oto'
-import { RouterContext } from '@koa/router'
-import { SlackEventEnvelope } from '../interfaces/index.js'
-import { BaseEndpoint, SlackUtil, logger } from '../lib/index.js'
+import { logger } from '@4lch4/backpack'
+import { Elysia } from 'elysia'
+import { SlackEventEnvelope } from '~/types'
+import { KafkaUtil, getUpstashConfig } from '../lib'
 
-export class SlackEndpoint extends BaseEndpoint {
-  async handleSlackEvent(ctx: RouterContext) {
-    const slackUtil = new SlackUtil({
-      url: process.env.UPSTASH_KAFKA_URL || '',
-      username: process.env.UPSTASH_KAFKA_USERNAME || '',
-      password: process.env.UPSTASH_KAFKA_PASSWORD || '',
-      topic: process.env.UPSTASH_KAFKA_TOPIC || '',
-    })
+function validateEvent(envelope: SlackEventEnvelope): boolean {
+  const validEvents = ['user_status_changed', 'user_huddle_changed']
 
-    const envelope: SlackEventEnvelope = ctx.request.body
+  // Check if the event is a valid event type.
+  if (validEvents.includes(envelope.event.type)) {
+    // Check if the event is from Devin/Myself.
+    if (envelope.event.user.real_name === 'Devin Leaman') return true
+  }
 
-    logger.info(`[SlackEndpoint#handleSlackEvent]: event: ${JSON.stringify(envelope, null, 2)}`)
+  return false
+}
+
+const kafkaUtil = new KafkaUtil(getUpstashConfig())
+
+export const SlackRoute = (app: Elysia) =>
+  app.post('/slack', async ctx => {
+    const envelope = ctx.body as SlackEventEnvelope
+    logger.debug(`[SlackRoute#post]: POST request received...`)
 
     switch (envelope.type) {
-      // @ts-ignore This is a valid case, but the type definition doesn't account for it. It occurs
-      // when Slack is verifying the URL while setting up the app.
       case 'url_verification':
-        return slackUtil.handleURLVerification(ctx)
+        return envelope.challenge
 
-      case 'event_callback':
-        return slackUtil.handleEventCallback(ctx)
+      case 'event_callback': {
+        if (validateEvent(envelope)) {
+          try {
+            logger.info(
+              `[SlackEndpoint#handleSlackEvent|user_status_changed]: event: ${JSON.stringify(
+                envelope,
+                null,
+                2,
+              )}`,
+            )
+
+            const res = await kafkaUtil.sendStatus(envelope)
+
+            logger.info(`[SlackUtil#handleEventCallback]: res: ${JSON.stringify(res, null, 2)}`)
+
+            ctx.set.status = 202
+
+            return res
+          } catch (error) {
+            logger.error(
+              `[SlackUtil#handleEventCallback]: error: ${JSON.stringify(error, null, 2)}`,
+            )
+
+            ctx.set.status = 500
+
+            return error
+          }
+        } else {
+          ctx.set.status = 500
+
+          return {
+            message: 'Invalid event',
+          }
+        }
+      }
 
       default:
         logger.error(`[SlackEndpoint#handleSlackEvent]: unknown event type: ${envelope.type}`)
-        return Successful.ok(ctx)
+        return 'OK'
     }
-  }
-
-  override async build() {
-    this.router.post('/slack', async ctx => this.handleSlackEvent(ctx))
-
-    return this.router
-  }
-}
+  })
