@@ -1,10 +1,10 @@
-export interface ISlackEvent {
+export interface SlackEventEnvelope {
   type: string
   challenge?: string
   token?: string
   team_id?: string
   api_app_id?: string
-  event?: Event
+  event: Event
   event_id?: string
   event_time?: number
   authorizations?: Authorization[]
@@ -109,11 +109,4 @@ export interface StatusEmojiDisplayInfo {
 export interface StatusInfo {
   status_emoji: string
   status_text: string
-}
-
-export enum Status {
-  Busy = 'Busy',
-  Available = 'Available',
-  Focused = 'Focused',
-  Offline = 'Offline',
 }

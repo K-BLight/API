@@ -1,36 +1,38 @@
 import { RouterContext } from '@koa/router'
-import { EnvelopedEvent, SlackEvent, UserStatusChangedEvent } from '@slack/bolt'
-import { Kafka } from '@upstash/kafka'
-import { logger } from './Logger.js'
-
-export interface UpstashKafkaConfig {
-  url: string
-  topic: string
-  username: string
-  password: string
-}
+import { IUpstashKafkaConfig, SlackEventEnvelope } from '../interfaces/index.js'
+import { KafkaUtil, logger } from './index.js'
 
 export class SlackUtil {
-  private topic: string
-  private kafka: Kafka
+  private kUtil: KafkaUtil
 
-  public constructor({ url, username, password, topic }: UpstashKafkaConfig) {
-    this.kafka = new Kafka({ url, username, password })
-    this.topic = topic
+  public constructor(config: IUpstashKafkaConfig) {
+    this.kUtil = new KafkaUtil(config)
   }
 
-  private getStatus(event: EnvelopedEvent<UserStatusChangedEvent>) {
-    const { status_emoji } = event.event.user.profile
+  /**
+   * Validates the provided Slack event to ensure it is an event that meets the following criteria:
+   *
+   * - The event is a `user_status_changed` or `user_huddle_changed` event.
+   * - The event is from the user `Devin Leaman`.
+   *
+   * @param envelope The Slack event to validate.
+   */
+  private validateEvent(envelope: SlackEventEnvelope): boolean {
+    const validEvents = ['user_status_changed', 'user_huddle_changed']
 
-    if (status_emoji === ':spiral_calendar_pad:') return 'Busy'
+    // Check if the event is a valid event type.
+    if (validEvents.includes(envelope.event.type)) {
+      // Check if the event is from Devin/Myself.
+      if (envelope.event.user.real_name === 'Devin Leaman') return true
+    }
 
-    return 'Available'
+    return false
   }
 
   public async handleEventCallback(ctx: RouterContext) {
-    const envelope: EnvelopedEvent<SlackEvent> = ctx.request.body
+    const envelope: SlackEventEnvelope = ctx.request.body
 
-    if (envelope.event.type === 'user_status_changed') {
+    if (this.validateEvent(envelope)) {
       try {
         logger.info(
           `[SlackEndpoint#handleSlackEvent|user_status_changed]: event: ${JSON.stringify(
@@ -40,17 +42,7 @@ export class SlackUtil {
           )}`
         )
 
-        const producer = this.kafka.producer()
-
-        logger.info(
-          `[SlackUtil#handleEventCallback]: producer: ${JSON.stringify(producer, null, 2)}`
-        )
-
-        const status = this.getStatus(envelope as EnvelopedEvent<UserStatusChangedEvent>)
-
-        logger.info(`[SlackUtil#handleEventCallback]: status: ${JSON.stringify(status, null, 2)}`)
-
-        const res = await producer.produce(this.topic, { status })
+        const res = await this.kUtil.sendStatus(envelope)
 
         logger.info(`[SlackUtil#handleEventCallback]: res: ${JSON.stringify(res, null, 2)}`)
 
@@ -73,7 +65,7 @@ export class SlackUtil {
   }
 
   public handleURLVerification(ctx: RouterContext) {
-    const envelope: EnvelopedEvent<SlackEvent> = ctx.request.body
+    const envelope: SlackEventEnvelope = ctx.request.body
 
     ctx.status = 200
     ctx.body = envelope.challenge

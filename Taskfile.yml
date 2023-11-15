@@ -41,6 +41,6 @@ tasks:
     desc: Restarts the docker container.
     cmds:
       - task build
-      - docker stop tp-api
-      - docker rm tp-api
+      - docker stop {{ .DOCKER_CONTAINER_NAME }}
+      - docker rm {{ .DOCKER_CONTAINER_NAME }}
       - task run

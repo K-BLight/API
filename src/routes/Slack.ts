@@ -1,17 +1,18 @@
 import { Successful } from '@4lch4/koa-oto'
 import { RouterContext } from '@koa/router'
-import { EnvelopedEvent, SlackEvent } from '@slack/bolt'
+import { SlackEventEnvelope } from '../interfaces/index.js'
 import { BaseEndpoint, SlackUtil, logger } from '../lib/index.js'
 
 export class SlackEndpoint extends BaseEndpoint {
   async handleSlackEvent(ctx: RouterContext) {
-    const envelope: EnvelopedEvent<SlackEvent> = ctx.request.body
     const slackUtil = new SlackUtil({
       url: process.env.UPSTASH_KAFKA_URL || '',
       username: process.env.UPSTASH_KAFKA_USERNAME || '',
       password: process.env.UPSTASH_KAFKA_PASSWORD || '',
       topic: process.env.UPSTASH_KAFKA_TOPIC || '',
     })
+
+    const envelope: SlackEventEnvelope = ctx.request.body
 
     logger.info(`[SlackEndpoint#handleSlackEvent]: event: ${JSON.stringify(envelope, null, 2)}`)
 
